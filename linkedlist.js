@@ -6,40 +6,42 @@ class Node {
 }
 
 class LinkedList {
-  constructor() {
-    this.head = null;
+  #incrementSize() {
+    if (this.size === undefined) this.size = 0;
+    this.size += 1;
   }
 
-  #getTail() {
-    let currentNode = this.head;
-    if (!currentNode) return currentNode;
-
-    while (currentNode.next) {
-      currentNode = currentNode.next;
-    }
-
-    const tail = currentNode;
-    return tail;
-  }
-
-  #getNode(value) {
-    return new Node(value);
-  }
-
-  append(value) {
-    if (!this.head) {
-      this.head = this.#getNode(value);
-      return;
-    }
-
-    const tail = this.#getTail();
-    tail.next = this.#getNode(value);
+  #decrementSize() {
+    if (this.size === undefined) this.size = 0;
+    this.size -= 1;
   }
 
   prepend(value) {
-    const node = this.#getNode(value);
-    node.next = this.head;
-    this.head = node;
+    const node = new Node(value);
+
+    if (!this.head) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      node.next = this.head;
+      this.head = node;
+    }
+
+    this.#incrementSize();
+  }
+
+  append(value) {
+    const node = new Node(value);
+
+    if (!this.head) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      this.tail.next = node;
+      this.tail = node;
+    }
+
+    this.#incrementSize();
   }
 }
 
@@ -47,6 +49,11 @@ const linkedList = new LinkedList();
 linkedList.append("hello");
 linkedList.append("hello2");
 linkedList.append("hello3");
+linkedList.prepend("hi");
 linkedList.append("hello4");
+linkedList.prepend("hello3");
 
 console.log(linkedList);
+console.log(linkedList.head);
+console.log(linkedList.tail);
+console.log(linkedList.size);
