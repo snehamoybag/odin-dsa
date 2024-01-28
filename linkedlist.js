@@ -44,6 +44,36 @@ class LinkedList {
     this.#incrementSize();
   }
 
+  pop() {
+    if (!this.head) return;
+
+    let prevNode = null;
+    let currentNode = this.head;
+
+    // keep treversing at the end of list
+    // at the end of the loop currentNode wil be the last/tail node
+    while (currentNode.next) {
+      prevNode = currentNode;
+      currentNode = currentNode.next;
+    }
+
+    prevNode.next = null;
+    this.tail = prevNode;
+    this.#decrementSize();
+  }
+
+  shift() {
+    if (!this.head) return;
+
+    if (!this.head.next) {
+      this.head = null;
+    } else {
+      this.head = this.head.next;
+    }
+
+    this.#decrementSize();
+  }
+
   at(index) {
     if (
       isNaN(index) ||
@@ -75,5 +105,5 @@ linkedList.prepend("hi");
 linkedList.append("hello4");
 linkedList.prepend("hello3");
 
+linkedList.shift();
 console.log(linkedList);
-console.log(linkedList.at(1));
