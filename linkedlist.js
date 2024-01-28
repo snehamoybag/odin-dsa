@@ -47,19 +47,16 @@ class LinkedList {
   pop() {
     if (!this.head) return;
 
-    let prevNode = null;
-    let currentNode = this.head;
+    this.tail = null;
+    this.#decrementSize();
 
-    // keep treversing at the end of list
-    // at the end of the loop currentNode wil be the last/tail node
+    // find and set new tail
+    let currentNode = this.head;
     while (currentNode.next) {
-      prevNode = currentNode;
       currentNode = currentNode.next;
     }
 
-    prevNode.next = null;
-    this.tail = prevNode;
-    this.#decrementSize();
+    this.tail = currentNode;
   }
 
   shift() {
