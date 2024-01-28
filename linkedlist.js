@@ -16,21 +16,6 @@ class LinkedList {
     this.size -= 1;
   }
 
-  #generateIndiciesHashMap() {
-    const map = {};
-    let count = 0;
-    let currentNode = this.head;
-
-    while (currentNode.next) {
-      map[count] = currentNode;
-
-      currentNode = currentNode.next;
-      count++;
-    }
-
-    return map;
-  }
-
   prepend(value) {
     const node = new Node(value);
 
@@ -69,8 +54,16 @@ class LinkedList {
       return null;
     }
 
-    const indiciesHashMap = this.#generateIndiciesHashMap();
-    return indiciesHashMap[index];
+    let node = this.head;
+    if (index === 0) return node;
+
+    let currentIndex = 1;
+    while (currentIndex <= index) {
+      node = node.next;
+      currentIndex += 1;
+    }
+
+    return node;
   }
 }
 
@@ -83,4 +76,4 @@ linkedList.append("hello4");
 linkedList.prepend("hello3");
 
 console.log(linkedList);
-console.log(linkedList.at(-1));
+console.log(linkedList.at(1));
