@@ -1,6 +1,6 @@
 class Node {
-  constructor(data, next = null) {
-    this.data = data;
+  constructor(value, next = null) {
+    this.value = value;
     this.next = next;
   }
 }
@@ -45,6 +45,8 @@ class LinkedList {
   }
 
   pop() {
+    /* BUG! */
+    /* method broken */
     if (!this.head) return;
 
     this.tail = null;
@@ -92,6 +94,37 @@ class LinkedList {
 
     return node;
   }
+
+  find(value) {
+    if (!this.head) return null;
+
+    let foundIndex = null;
+    let currentIndex = 0;
+    let currentNode = this.head;
+
+    while (foundIndex === null && currentNode.next) {
+      if (currentNode.value === value) foundIndex = currentIndex;
+      currentNode = currentNode.next;
+      currentIndex++;
+    }
+
+    return foundIndex;
+  }
+
+  contains(value) {
+    if (!this.head) return false;
+    if (this.head.value === value || this.tail.value === value) return true;
+
+    let currentNode = this.head;
+    let isFound = false;
+
+    while (!isFound && currentNode.next) {
+      isFound = currentNode.value === value;
+      currentNode = currentNode.next;
+    }
+
+    return isFound;
+  }
 }
 
 const linkedList = new LinkedList();
@@ -100,7 +133,9 @@ linkedList.append("hello2");
 linkedList.append("hello3");
 linkedList.prepend("hi");
 linkedList.append("hello4");
-linkedList.prepend("hello3");
+linkedList.prepend("hello5");
 
-linkedList.shift();
 console.log(linkedList);
+console.log(linkedList.tail);
+linkedList.pop();
+console.log(linkedList.tail);
