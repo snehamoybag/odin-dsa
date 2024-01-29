@@ -125,12 +125,23 @@ class LinkedList {
     return isFound;
   }
 
-  printer() {
-    let node = this.head;
-    while (node.next) {
-      console.log(node.value);
-      node = node.next;
+  toString() {
+    if (!this.head) return "null";
+
+    let string = "";
+    let currentNode = this.head;
+
+    while (currentNode.next) {
+      if (string === "") {
+        string += `( ${currentNode.value} )`;
+      } else {
+        string += ` -> ( ${currentNode.value} )`;
+      }
+
+      currentNode = currentNode.next;
     }
+
+    return `${string} -> null`;
   }
 }
 
@@ -139,6 +150,6 @@ linkedList.append("hello");
 linkedList.append("hello2");
 linkedList.append("hello3");
 
-console.log(linkedList);
+console.log(linkedList.toString());
 linkedList.pop();
-console.log(linkedList);
+console.log(linkedList.toString());
