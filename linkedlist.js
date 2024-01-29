@@ -72,15 +72,37 @@ class LinkedList {
     this.#decrementSize();
   }
 
-  at(index) {
-    if (
-      isNaN(index) ||
-      !Number.isSafeInteger(index) ||
-      index < 0 ||
-      index >= this.size
-    ) {
-      return null;
+  insertAt(index, value) {
+    if (isNaN(index) || !Number.isInteger(index)) return;
+    if (index < 0 || index > this.size) {
+      throw new Error(
+        "provided 'index' cannot be smaller than 0 and greater than the size of the list",
+      );
     }
+
+    if (index === 0) {
+      this.prepend(value);
+      return;
+    }
+
+    if (index === this.size) {
+      this.append(value);
+      return;
+    }
+
+    const newNode = new Node(value);
+    const indexedNode = this.at(index);
+    const prevIndexedNode = this.at(index - 1);
+    newNode.next = indexedNode;
+    prevIndexedNode.next = newNode;
+    this.#incrementSize();
+  }
+
+  at(index) {
+    if (isNaN(index) || !Number.isInteger(index)) return;
+    if (index < 0 || index >= this.size) return;
+
+    if (!this.head) return null;
 
     let node = this.head;
     if (index === 0) return node;
@@ -131,16 +153,15 @@ class LinkedList {
     let string = "";
     let currentNode = this.head;
 
-    while (currentNode.next) {
+    while (currentNode) {
       if (string === "") {
-        string += `( ${currentNode.value} )`;
+        string = `( ${currentNode.value} )`;
       } else {
-        string += ` -> ( ${currentNode.value} )`;
+        string = `${string} -> ( ${currentNode.value} )`;
       }
 
       currentNode = currentNode.next;
     }
-
     return `${string} -> null`;
   }
 }
@@ -150,6 +171,4 @@ linkedList.append("hello");
 linkedList.append("hello2");
 linkedList.append("hello3");
 
-console.log(linkedList.toString());
-linkedList.pop();
 console.log(linkedList.toString());
