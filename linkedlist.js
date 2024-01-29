@@ -45,20 +45,19 @@ class LinkedList {
   }
 
   pop() {
-    /* BUG! */
-    /* method broken */
     if (!this.head) return;
 
-    this.tail = null;
-    this.#decrementSize();
-
-    // find and set new tail
+    let prevNode = null;
     let currentNode = this.head;
+
     while (currentNode.next) {
+      prevNode = currentNode;
       currentNode = currentNode.next;
     }
 
-    this.tail = currentNode;
+    prevNode.next = null;
+    this.tail = prevNode;
+    this.#decrementSize();
   }
 
   shift() {
@@ -125,17 +124,21 @@ class LinkedList {
 
     return isFound;
   }
+
+  printer() {
+    let node = this.head;
+    while (node.next) {
+      console.log(node.value);
+      node = node.next;
+    }
+  }
 }
 
 const linkedList = new LinkedList();
 linkedList.append("hello");
 linkedList.append("hello2");
 linkedList.append("hello3");
-linkedList.prepend("hi");
-linkedList.append("hello4");
-linkedList.prepend("hello5");
 
 console.log(linkedList);
-console.log(linkedList.tail);
 linkedList.pop();
-console.log(linkedList.tail);
+console.log(linkedList);
