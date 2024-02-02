@@ -98,6 +98,31 @@ class LinkedList {
     this.#incrementSize();
   }
 
+  removeAt(index) {
+    if (isNaN(index) || !Number.isInteger(index)) return;
+    if (index < 0 || index >= this.size) {
+      throw new Error(
+        "provided 'index' cannot be smaller than 0 and greater than or equal to the size of the list",
+      );
+    }
+
+    if (index === 0) {
+      this.shift();
+      return;
+    }
+
+    if (index === this.size - 1) {
+      this.pop();
+      return;
+    }
+
+    let indexedNode = this.at(index);
+    let prevIndexedNode = this.at(index - 1);
+
+    prevIndexedNode.next = indexedNode.next;
+    this.#decrementSize();
+  }
+
   at(index) {
     if (isNaN(index) || !Number.isInteger(index)) return;
     if (index < 0 || index >= this.size) return;
