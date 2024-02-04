@@ -48,17 +48,41 @@ class LinkedList {
     if (!this.#head) return;
 
     let currentNode = this.#head;
+
     while (currentNode.next) {
-      if (currentNode.key === key) currentNode.value = value;
+      if (currentNode.key === key) {
+        currentNode.value = value;
+        return;
+      }
+
+      currentNode = currentNode.next;
     }
   }
 }
 
 class HashMap {
   #buckets = [];
+  #LOAD_FACTOR = 0.75; //75%
+  #maxCapacity = 16; // i.e given any number modulo by 16 we will get a number between 0 and 15
 
-  // only for string keys
-  #hash(key = "") {
+  get #size() {
+    let count = 0;
+
+    for (const bucket of this.#buckets) {
+      if (!bucket || !bucket.head) continue; // skip to next bucket
+
+      let currentNode = bucket.head;
+      while (currentNode) {
+        count++;
+        currentNode = currentNode.next;
+      }
+    }
+
+    return count;
+  }
+
+  #hash(key) {
+    // only for string keys
     let hashCode = 0;
 
     const primeNumber = 31;
@@ -69,53 +93,56 @@ class HashMap {
     return hashCode;
   }
 
-  #LOAD_FACTOR = 0.75; //75%
-  #maxCapacity = 16; // i.e given any number modulo by 16 we will get a number between 0 and 15
-
-  get #capacity() {
-    let capacity = 0;
-    const buckets = this.#buckets;
-
-    for (let i = 0; i < buckets.length; i++) {
-      if (buckets[i] !== undefined) capacity++;
-    }
-
-    return capacity;
+  get #isOverLoaded() {
+    return this.#size >= this.#maxCapacity * this.#LOAD_FACTOR;
   }
 
-  get #isOverLoaded() {
-    return this.#capacity >= this.#maxCapacity * this.#LOAD_FACTOR;
+  #addOrUpdateBucket(buckets, key, value) {
+    const index = this.#hash(key) % this.#maxCapacity;
+
+    // if linkedList does not already exist in this index, create one
+    if (!buckets[index]) {
+      buckets[index] = new LinkedList();
+    }
+
+    const bucket = buckets[index];
+    if (bucket.contains(key)) {
+      bucket.update(key, value);
+    } else {
+      bucket.append(key, value);
+    }
+  }
+
+  #reset() {
+    const newBuckets = [];
+
+    for (const bucket of this.#buckets) {
+      if (!bucket || !bucket.head) continue; // skip to next bucket/index
+
+      let currentNode = bucket.head;
+      while (currentNode) {
+        this.#addOrUpdateBucket(newBuckets, currentNode.key, currentNode.value);
+        currentNode = currentNode.next;
+      }
+    }
+
+    this.#buckets = newBuckets;
   }
 
   set(key, value = null) {
     if (this.#isOverLoaded) {
-      this.#maxCapacity = this.#maxCapacity * 2;
+      this.#maxCapacity *= 2; // douvle the capacity
+      this.#reset();
     }
-
-    const buckets = this.#buckets;
-    const bucketNum = this.#hash(key) % this.#maxCapacity;
-    const doesBucketExist = buckets[bucketNum] !== undefined;
-
-    if (!doesBucketExist) {
-      buckets[bucketNum] = new LinkedList();
-    }
-
-    const currentBucket = buckets[bucketNum];
-
-    if (currentBucket.contains(key)) {
-      currentBucket.updateNode(key, value);
-    } else {
-      // if key already does not exist it is a different node
-      currentBucket.append(key, value);
-    }
+    this.#addOrUpdateBucket(this.#buckets, key, value);
   }
 }
 
 const hashMap = new HashMap();
 
-let string = "hello";
-for (let i = 0; i <= 128; i++) {
-  hashMap.set(string + i, "bye" + i);
+for (let i = 0; i <= 100; i++) {
+  const key = "hello " + i;
+  hashMap.set(key, "bye");
 }
 
 console.log(hashMap);
