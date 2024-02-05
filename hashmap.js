@@ -8,7 +8,6 @@ class Node {
 
 class LinkedList {
   #head = null;
-  #tail = null;
   #size = 0;
 
   get head() {
@@ -16,7 +15,17 @@ class LinkedList {
   }
 
   get tail() {
-    return this.#tail;
+    if (!this.#head) return null;
+
+    let tail = null;
+    let currentNode = this.#head;
+
+    while (currentNode && !tail) {
+      if (currentNode.next === null) tail = currentNode;
+      currentNode = currentNode.next;
+    }
+
+    return tail;
   }
 
   get size() {
@@ -27,14 +36,34 @@ class LinkedList {
     const node = new Node(key, value);
     if (!this.#head) {
       this.#head = node;
-      this.#tail = this.#head;
       this.#size++;
       return;
     }
 
-    this.#tail.next = node;
-    this.#tail = node;
     this.#size++;
+  }
+
+  delete(key) {
+    if (!this.#head) return;
+
+    if (this.#head.key === key) {
+      this.#head = this.#head.next;
+      this.#size--;
+      return;
+    }
+
+    let currentNode = this.#head;
+    let prevNode = null;
+
+    while (currentNode) {
+      if (currentNode.key === key) {
+        prevNode.next = currentNode.next; //removes the currentNode
+        this.#size--;
+      }
+
+      prevNode = currentNode;
+      currentNode = currentNode.next;
+    }
   }
 
   contains(key) {
@@ -158,6 +187,22 @@ class HashMap {
     return matchingNodeValue;
   }
 
+  remove(key) {
+    const index = this.#getHashedIndex(key);
+    const bucket = this.#buckets[index];
+    if (!bucket || !bucket.head) return false;
+
+    const prevSize = bucket.size;
+    bucket.delete(key);
+    const currentSize = bucket.size; // if delete successful, currentSize should be 1 less than prevSize
+
+    const isRemoved = prevSize > currentSize;
+
+    if (currentSize === 0) this.#buckets[index] = null; // remove the linked list to prevent other methods from breaking
+
+    return isRemoved;
+  }
+
   has(key) {
     const bucket = this.#buckets[this.#getHashedIndex(key)];
 
@@ -177,12 +222,9 @@ class HashMap {
 
 const hashMap = new HashMap();
 
-// for (let i = 0; i <= 100; i++) {
-//   const key = "hello" + i;
-//   hashMap.set(key, "bye");
-// }
-
 hashMap.set("hello1", "bro0");
 hashMap.set("hello2", "bro1");
 hashMap.set("hello3", "bro2");
-console.log(hashMap.length);
+hashMap.set("hello4", "bro3");
+
+console.log(hashMap);
