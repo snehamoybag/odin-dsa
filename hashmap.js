@@ -9,6 +9,7 @@ class Node {
 class LinkedList {
   #head = null;
   #tail = null;
+  #size = 0;
 
   get head() {
     return this.#head;
@@ -18,16 +19,22 @@ class LinkedList {
     return this.#tail;
   }
 
+  get size() {
+    return this.#size;
+  }
+
   append(key, value) {
     const node = new Node(key, value);
     if (!this.#head) {
       this.#head = node;
       this.#tail = this.#head;
+      this.#size++;
       return;
     }
 
     this.#tail.next = node;
     this.#tail = node;
+    this.#size++;
   }
 
   contains(key) {
@@ -65,20 +72,18 @@ class HashMap {
   #LOAD_FACTOR = 0.75; //75%
   #maxCapacity = 16; // i.e given any number modulo by 16 we will get a number between 0 and 15
 
-  get #size() {
+  get length() {
     let count = 0;
 
     for (const bucket of this.#buckets) {
-      if (!bucket || !bucket.head) continue; // skip to next bucket
-
-      let currentNode = bucket.head;
-      while (currentNode) {
-        count++;
-        currentNode = currentNode.next;
-      }
+      if (!bucket) continue; // skip
+      count += bucket.size;
     }
-
     return count;
+  }
+
+  get #isOverLoaded() {
+    return this.length >= this.#maxCapacity * this.#LOAD_FACTOR;
   }
 
   #hash(key) {
@@ -93,12 +98,12 @@ class HashMap {
     return hashCode;
   }
 
-  get #isOverLoaded() {
-    return this.#size >= this.#maxCapacity * this.#LOAD_FACTOR;
+  #getHashedIndex(key) {
+    return this.#hash(key) % this.#maxCapacity;
   }
 
   #addOrUpdateBucket(buckets, key, value) {
-    const index = this.#hash(key) % this.#maxCapacity;
+    const index = this.#getHashedIndex(key);
 
     // if linkedList does not already exist in this index, create one
     if (!buckets[index]) {
@@ -107,7 +112,7 @@ class HashMap {
 
     const bucket = buckets[index];
     if (bucket.contains(key)) {
-      bucket.update(key, value);
+      bucket.updateNode(key, value);
     } else {
       bucket.append(key, value);
     }
@@ -136,13 +141,48 @@ class HashMap {
     }
     this.#addOrUpdateBucket(this.#buckets, key, value);
   }
+
+  get(key) {
+    const bucket = this.#buckets[this.#getHashedIndex(key)];
+
+    if (!bucket || !bucket.head) return null;
+
+    let matchingNodeValue = null;
+
+    let currentNode = bucket.head;
+    while (currentNode && !matchingNodeValue) {
+      if (currentNode.key === key) matchingNodeValue = currentNode.value;
+      currentNode = currentNode.next;
+    }
+
+    return matchingNodeValue;
+  }
+
+  has(key) {
+    const bucket = this.#buckets[this.#getHashedIndex(key)];
+
+    if (!bucket || !bucket.head) return false;
+
+    let hasNode = false;
+
+    let currentNode = bucket.head;
+    while (currentNode || !hasNode) {
+      if (currentNode.key === key) hasNode = true;
+      currentNode = currentNode.next;
+    }
+
+    return hasNode;
+  }
 }
 
 const hashMap = new HashMap();
 
-for (let i = 0; i <= 100; i++) {
-  const key = "hello " + i;
-  hashMap.set(key, "bye");
-}
+// for (let i = 0; i <= 100; i++) {
+//   const key = "hello" + i;
+//   hashMap.set(key, "bye");
+// }
 
-console.log(hashMap);
+hashMap.set("hello1", "bro0");
+hashMap.set("hello2", "bro1");
+hashMap.set("hello3", "bro2");
+console.log(hashMap.length);
