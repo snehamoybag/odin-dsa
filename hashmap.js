@@ -94,6 +94,49 @@ class LinkedList {
       currentNode = currentNode.next;
     }
   }
+
+  #getData(type) {
+    const data = [];
+    if (!this.#head) return data;
+
+    const runDataGrabber = function() {
+      switch (type) {
+        case "keys":
+          data.push(currentNode.key);
+          break;
+
+        case "values":
+          data.push(currentNode.value);
+          break;
+
+        case "entries":
+          data.push([currentNode.key, currentNode.value]);
+
+        default:
+          break;
+      }
+    };
+
+    let currentNode = this.#head;
+    while (currentNode) {
+      runDataGrabber();
+      currentNode = currentNode.next;
+    }
+
+    return data;
+  }
+
+  keys() {
+    return this.#getData("keys");
+  }
+
+  values() {
+    return this.#getData("values");
+  }
+
+  entries() {
+    return this.#getData("entries");
+  }
 }
 
 class HashMap {
@@ -148,6 +191,10 @@ class HashMap {
   }
 
   #reset() {
+    // since our index hashing depends on the maxCapacity,
+    // changing the maxCapacity will produce different hashes/indicies on the same key
+    // so methods like get(key), has(key) will break at some point.
+    // solutiion: rehash all keys and relocate them in their new buckets
     const newBuckets = [];
 
     for (const bucket of this.#buckets) {
@@ -217,6 +264,53 @@ class HashMap {
     }
 
     return hasNode;
+  }
+
+  clear() {
+    this.#buckets = [];
+  }
+
+  #getBucketData(type) {
+    const data = [];
+    if (this.length === 0) return data;
+
+    const generateData = function(bucket) {
+      switch (type) {
+        case "keys":
+          data.push(...bucket.keys());
+          break;
+
+        case "values":
+          data.push(...bucket.values());
+          break;
+
+        case "entries":
+          data.push(...bucket.entries());
+          break;
+
+        default:
+          break;
+      }
+    };
+
+    for (const bucket of this.#buckets) {
+      if (!bucket) continue; // skip
+      generateData(bucket);
+    }
+
+    return data;
+  }
+
+  keys() {
+    return this.#getBucketData("keys");
+  }
+
+  values() {
+    return this.#getBucketData("values");
+  }
+
+  entries() {
+    return this.#getBucketData("entries");
   }
 }
 
