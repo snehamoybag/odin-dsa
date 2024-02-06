@@ -99,7 +99,7 @@ class LinkedList {
     const data = [];
     if (!this.#head) return data;
 
-    const runDataGrabber = function() {
+    const runDataGrabber = function () {
       switch (type) {
         case "keys":
           data.push(currentNode.key);
@@ -142,7 +142,8 @@ class LinkedList {
 class HashMap {
   #buckets = [];
   #LOAD_FACTOR = 0.75; //75%
-  #maxCapacity = 16; // i.e given any number modulo by 16 we will get a number between 0 and 15
+  #INITIAL_CAPACITY = 16; // i.e given any number modulo by 16 we will get a number between 0 and 15
+  #maxCapacity = this.#INITIAL_CAPACITY;
 
   get length() {
     let count = 0;
@@ -246,6 +247,7 @@ class HashMap {
     const isRemoved = prevSize > currentSize;
 
     if (currentSize === 0) this.#buckets[index] = null; // remove the linked list to prevent other methods from breaking
+    if (this.length === 0) this.#maxCapacity = this.#INITIAL_CAPACITY; // reset the size if hashmap is empty
 
     return isRemoved;
   }
@@ -268,13 +270,14 @@ class HashMap {
 
   clear() {
     this.#buckets = [];
+    if (this.length === 0) this.#maxCapacity = this.#INITIAL_CAPACITY;
   }
 
   #getBucketData(type) {
     const data = [];
     if (this.length === 0) return data;
 
-    const generateData = function(bucket) {
+    const generateData = function (bucket) {
       switch (type) {
         case "keys":
           data.push(...bucket.keys());
