@@ -72,19 +72,15 @@ class Tree {
   }
 
   constructor(array) {
-    this.array = this.#fileterAndSort(array);
-  }
-
-  get root() {
-    return this.buildTree(this.array);
+    this.data = this.#fileterAndSort(array);
   }
 
   buildTree(array) {
-    // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    // [1, 3, 4, 5, 7, 8, 9, 23, 67, 324, 6345]
     const midIndex = Math.floor(array.length / 2);
 
-    const root = array[midIndex];
-    const rootNode = new Node(root);
+    const rootItem = array[midIndex];
+    const rootNode = rootItem !== undefined ? new Node(rootItem) : null;
 
     // if array has just 1 item, that item has to be the root node,
     // since there is nothing on its left and right side.
@@ -99,19 +95,30 @@ class Tree {
     return rootNode;
   }
 
+  get root() {
+    return this.buildTree(this.data);
+  }
+
   prettyPrint(node, prefix = "", isLeft = true) {
     if (node === null) {
       return;
     }
     if (node.right !== null) {
-      prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
+      this.prettyPrint(
+        node.right,
+        `${prefix}${isLeft ? "│   " : "    "}`,
+        false,
+      );
     }
     console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
     if (node.left !== null) {
-      prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
+      this.prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
     }
   }
 }
 
-const BS_Tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
-console.log(BS_Tree.root);
+const balancedBST = new Tree([
+  1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777,
+]);
+console.log(balancedBST.data);
+balancedBinaryTree.prettyPrint(balancedBST.root);
