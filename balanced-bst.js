@@ -65,17 +65,17 @@ class Tree {
     return mergedArray;
   }
 
-  #fileterAndSort(array) {
-    const filteredArray = this.#removeDuplicates(array);
-    const sortedArray = this.#mergeSort(filteredArray);
-    return sortedArray;
+  #filterAndSort(array) {
+    const noDuplicates = this.#removeDuplicates(array);
+    const sorted = this.#mergeSort(noDuplicates);
+    return sorted;
   }
 
   constructor(array) {
-    this.data = this.#fileterAndSort(array);
+    this.filteredAndSortedInitialInput = this.#filterAndSort(array);
   }
 
-  buildTree(array) {
+  #buildTree(array) {
     // [1, 3, 4, 5, 7, 8, 9, 23, 67, 324, 6345]
     const midIndex = Math.floor(array.length / 2);
 
@@ -88,15 +88,48 @@ class Tree {
       const leftArr = array.slice(0, midIndex);
       const rightArr = array.slice(midIndex + 1, array.length);
 
-      rootNode.left = this.buildTree(leftArr);
-      rootNode.right = this.buildTree(rightArr);
+      rootNode.left = this.#buildTree(leftArr);
+      rootNode.right = this.#buildTree(rightArr);
     }
 
     return rootNode;
   }
 
+  #root = null;
   get root() {
-    return this.buildTree(this.data);
+    if (this.#root === null) {
+      this.#root = this.#buildTree(this.filteredAndSortedInitialInput);
+    }
+
+    return this.#root;
+  }
+
+  insert(item) {
+    const newNode = new Node(item);
+
+    if (this.root === null) {
+      this.root = newNode; // this.root returns this.#root ;)
+      return;
+    }
+
+    let currentNode = this.root;
+    while (true) {
+      if (item === currentNode.data) return; // don't keep duplicates
+
+      if (item < currentNode.data && currentNode.left === null) {
+        currentNode.left = newNode;
+        return;
+      } else if (item < currentNode.data && currentNode.left !== null) {
+        currentNode = currentNode.left;
+      }
+
+      if (item > currentNode.data && currentNode.right === null) {
+        currentNode.right = newNode;
+        return;
+      } else if (item > currentNode.data && currentNode.right !== null) {
+        currentNode = currentNode.right;
+      }
+    }
   }
 
   prettyPrint(node, prefix = "", isLeft = true) {
@@ -120,5 +153,6 @@ class Tree {
 const balancedBST = new Tree([
   1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777,
 ]);
-console.log(balancedBST.data);
-balancedBinaryTree.prettyPrint(balancedBST.root);
+console.log(balancedBST.root);
+
+balancedBST.prettyPrint(balancedBST.root);
