@@ -5,6 +5,17 @@ class Node {
     this.left = null;
     this.right = null;
   }
+
+  get height() {
+    const leftHeight = this.left ? this.left.height + 1 : 0;
+    const rightHeight = this.right ? this.right.height + 1 : 0;
+
+    return Math.max(leftHeight, rightHeight);
+  }
+
+  get balanceFactor() {
+    return this.right.height - this.left.height;
+  }
 }
 
 class Tree {
@@ -71,10 +82,6 @@ class Tree {
     return sorted;
   }
 
-  constructor(array) {
-    this.filteredAndSortedInitialInput = this.#filterAndSort(array);
-  }
-
   #buildTree(array) {
     // [1, 3, 4, 5, 7, 8, 9, 23, 67, 324, 6345]
     const midIndex = Math.floor(array.length / 2);
@@ -95,20 +102,15 @@ class Tree {
     return rootNode;
   }
 
-  #root = null;
-  get root() {
-    if (this.#root === null) {
-      this.#root = this.#buildTree(this.filteredAndSortedInitialInput);
-    }
-
-    return this.#root;
+  constructor(array) {
+    this.root = this.#buildTree(this.#filterAndSort(array));
   }
 
   insert(item) {
     const newNode = new Node(item);
 
     if (this.root === null) {
-      this.root = newNode; // this.root returns this.#root ;)
+      this.root = newNode;
       return;
     }
 
@@ -132,7 +134,7 @@ class Tree {
     }
   }
 
-  prettyPrint(node, prefix = "", isLeft = true) {
+  prettyPrint(node = this.root, prefix = "", isLeft = true) {
     if (node === null) {
       return;
     }
@@ -153,6 +155,8 @@ class Tree {
 const balancedBST = new Tree([
   1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777,
 ]);
-console.log(balancedBST.root);
 
-balancedBST.prettyPrint(balancedBST.root);
+console.log(balancedBST.root);
+console.log(balancedBST.root.height);
+console.log(balancedBST.root.balanceFactor);
+balancedBST.prettyPrint();
