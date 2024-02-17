@@ -106,32 +106,42 @@ class Tree {
     this.root = this.#buildTree(this.#filterAndSort(array));
   }
 
+  #handleImbalance(node) {
+    const balanceFactor = node.balanceFactor;
+    const isImbalanced = balanceFactor < -1 && balanceFactor > 1;
+
+    if (!isImbalanced) return;
+  }
+
   insert(item) {
     const newNode = new Node(item);
 
-    if (this.root === null) {
+    if (!this.root) {
       this.root = newNode;
       return;
     }
 
-    let currentNode = this.root;
-    while (true) {
-      if (item === currentNode.data) return; // don't keep duplicates
+    // recursive helper function
+    const inserter = (node) => {
+      if (item === node.data) return; // dont keep duplicates
 
-      if (item < currentNode.data && currentNode.left === null) {
-        currentNode.left = newNode;
-        return;
-      } else if (item < currentNode.data && currentNode.left !== null) {
-        currentNode = currentNode.left;
+      if (item < node.data) {
+        if (node.left) inserter(node.left);
+        else node.left = newNode;
       }
 
-      if (item > currentNode.data && currentNode.right === null) {
-        currentNode.right = newNode;
-        return;
-      } else if (item > currentNode.data && currentNode.right !== null) {
-        currentNode = currentNode.right;
+      if (item > node.data) {
+        if (node.right) inserter(node.right);
+        else node.right = newNode;
       }
-    }
+
+      // check and handle imbalance (if any) after insertion
+      this.#handleImbalance(node);
+      return;
+    };
+
+    // calling the inserter
+    inserter(this.root);
   }
 
   prettyPrint(node = this.root, prefix = "", isLeft = true) {
@@ -155,6 +165,7 @@ class Tree {
 const balancedBST = new Tree([
   1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777,
 ]);
+balancedBST.insert(99);
 
 console.log(balancedBST.root);
 console.log(balancedBST.root.height);
