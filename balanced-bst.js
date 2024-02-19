@@ -6,15 +6,20 @@ class Node {
     this.right = null;
   }
 
-  get height() {
-    const leftHeight = this.left ? this.left.height + 1 : 0;
-    const rightHeight = this.right ? this.right.height + 1 : 0;
+  get #leftHeight() {
+    return this.left ? this.left.height + 1 : 0; // including the left node
+  }
 
-    return Math.max(leftHeight, rightHeight);
+  get #rightHeight() {
+    return this.right ? this.right.height + 1 : 0; // including the right node
+  }
+
+  get height() {
+    return Math.max(this.#leftHeight, this.#rightHeight);
   }
 
   get balanceFactor() {
-    return this.right.height - this.left.height;
+    return this.#rightHeight - this.#leftHeight;
   }
 }
 
@@ -106,11 +111,46 @@ class Tree {
     this.root = this.#buildTree(this.#filterAndSort(array));
   }
 
-  #handleImbalance(node) {
-    const balanceFactor = node.balanceFactor;
-    const isImbalanced = balanceFactor < -1 && balanceFactor > 1;
+  #doRightRotation(node) {
+    node.right = new Node(node.data); // right has to be null since the tree is imbalanced
+    node.data = node.left.data;
+    node.left.data = node.left.left.data;
+    node.left.left = null;
+  }
 
-    if (!isImbalanced) return;
+  #doLeftRotation(node) {
+    node.left = new Node(node.data); // left has to be null since the tree is imbalanced
+    node.data = node.right.data;
+    node.right.data = node.right.right.data;
+    node.right.right = null;
+  }
+
+  #handleImbalance(node) {
+    const rootBF = node.balanceFactor;
+    const leftBF = node.left ? node.left.balanceFactor : 0;
+    const rightBF = node.right ? node.right.balanceFactor : 0;
+
+    // if -2, left side is imbalanced. else if 2, right side is imbalanced
+
+    if (rootBF === -2 && leftBF === -1) {
+      this.#doRightRotation(node);
+      return;
+    }
+
+    if (rootBF === 2 && rightBF === 1) {
+      this.#doLeftRotation(node);
+      return;
+    }
+
+    if (rootBF === -2 && leftBF === 1) {
+      // do leftRightRotation()
+      return;
+    }
+
+    if (rootBF === 2 && rightBF === -1) {
+      // do rightLeftRotation()
+      return;
+    }
   }
 
   insert(item) {
@@ -136,7 +176,9 @@ class Tree {
       }
 
       // check and handle imbalance (if any) after insertion
-      this.#handleImbalance(node);
+      const balanceFactor = node.balanceFactor;
+      const isImbalanced = balanceFactor < -1 || balanceFactor > 1;
+      if (isImbalanced) this.#handleImbalance(node);
       return;
     };
 
@@ -162,12 +204,14 @@ class Tree {
   }
 }
 
-const balancedBST = new Tree([
-  1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777,
-]);
-balancedBST.insert(99);
+const tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777]);
+tree.insert(0);
+tree.insert(6346);
+tree.insert(6347);
+tree.insert(6348);
+tree.insert(778);
+tree.insert(779);
+tree.insert(6344);
+tree.insert(6343);
 
-console.log(balancedBST.root);
-console.log(balancedBST.root.height);
-console.log(balancedBST.root.balanceFactor);
-balancedBST.prettyPrint();
+tree.prettyPrint();
