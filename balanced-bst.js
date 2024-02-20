@@ -125,6 +125,18 @@ class Tree {
     node.right.right = null;
   }
 
+  #doLeftRightRotation(node) {
+    node.right = new Node(node.data);
+    node.data = node.left.right.data;
+    node.left.right = null;
+  }
+
+  #doRightLeftRotation(node) {
+    node.left = new Node(node.data);
+    node.data = node.right.left.data;
+    node.right.left = null;
+  }
+
   #handleImbalance(node) {
     const rootBF = node.balanceFactor;
     const leftBF = node.left ? node.left.balanceFactor : 0;
@@ -143,12 +155,12 @@ class Tree {
     }
 
     if (rootBF === -2 && leftBF === 1) {
-      // do leftRightRotation()
+      this.#doLeftRightRotation(node);
       return;
     }
 
     if (rootBF === 2 && rightBF === -1) {
-      // do rightLeftRotation()
+      this.#doRightLeftRotation(node);
       return;
     }
   }
@@ -205,13 +217,9 @@ class Tree {
 }
 
 const tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777]);
-tree.insert(0);
-tree.insert(6346);
-tree.insert(6347);
-tree.insert(6348);
-tree.insert(778);
 tree.insert(779);
-tree.insert(6344);
-tree.insert(6343);
-
+tree.insert(778);
+tree.insert(24);
+tree.insert(6000);
+tree.insert(6005);
 tree.prettyPrint();
