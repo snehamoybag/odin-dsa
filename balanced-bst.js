@@ -137,7 +137,13 @@ class Tree {
     node.right.left = null;
   }
 
-  #handleImbalance(node) {
+  #isImbalanced(node) {
+    const balanceFactor = node.balanceFactor;
+    const isImbalanced = balanceFactor < -1 || balanceFactor > 1;
+    return isImbalanced;
+  }
+
+  #rebalance(node) {
     const rootBF = node.balanceFactor;
     const leftBF = node.left ? node.left.balanceFactor : 0;
     const rightBF = node.right ? node.right.balanceFactor : 0;
@@ -188,14 +194,33 @@ class Tree {
       }
 
       // check and handle imbalance (if any) after insertion
-      const balanceFactor = node.balanceFactor;
-      const isImbalanced = balanceFactor < -1 || balanceFactor > 1;
-      if (isImbalanced) this.#handleImbalance(node);
+      if (this.#isImbalanced(node)) this.#rebalance(node);
       return;
     };
 
     // calling the inserter
     inserter(this.root);
+  }
+
+  levelOrder(cb = null) {
+    if (!this.root) return;
+    const levelOrderData = [];
+
+    const discoverdNodes = [];
+    discoverdNodes.push(this.root);
+
+    while (discoverdNodes.length > 0) {
+      const firstItem = discoverdNodes[0];
+      levelOrderData.push(firstItem.data);
+      if (cb) cb(firstItem);
+
+      if (firstItem.left) discoverdNodes.push(firstItem.left);
+      if (firstItem.right) discoverdNodes.push(firstItem.right);
+
+      discoverdNodes.shift();
+    }
+
+    if (!cb) return levelOrderData;
   }
 
   prettyPrint(node = this.root, prefix = "", isLeft = true) {
@@ -223,3 +248,4 @@ tree.insert(24);
 tree.insert(6000);
 tree.insert(6005);
 tree.prettyPrint();
+console.log(tree.levelOrder());
