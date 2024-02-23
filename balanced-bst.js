@@ -238,6 +238,66 @@ class Tree {
     if (!cb) return levelOrderData;
   }
 
+  preOrder(cb = null) {
+    if (!this.root) return;
+
+    const preOrderData = [];
+
+    // recursive function to help treverse the tree
+    const treverser = (node) => {
+      preOrderData.push(node.data);
+      if (cb) cb(node);
+
+      if (node.left) treverser(node.left);
+      if (node.right) treverser(node.right);
+      return;
+    };
+
+    // calling the treverser func
+    treverser(this.root);
+
+    if (!cb) return preOrderData;
+  }
+
+  inOrder(cb = null) {
+    if (!this.root) return;
+
+    const inOrderData = [];
+
+    const treverser = (node) => {
+      if (node.left) treverser(node.left);
+
+      inOrderData.push(node.data);
+      if (cb) cb(node);
+
+      if (node.right) treverser(node.right);
+      return;
+    };
+
+    treverser(this.root);
+
+    if (!cb) return inOrderData;
+  }
+
+  postOrder(cb = null) {
+    if (!this.root) return;
+
+    const postOrderData = [];
+
+    const treverser = (node) => {
+      if (node.left) treverser(node.left);
+      if (node.right) treverser(node.right);
+
+      if (cb) cb(node);
+      postOrderData.push(node.data);
+      return;
+    };
+
+    treverser(this.root);
+
+    if (!cb) return postOrderData;
+  }
+
   prettyPrint(node = this.root, prefix = "", isLeft = true) {
     if (node === null) {
       return;
