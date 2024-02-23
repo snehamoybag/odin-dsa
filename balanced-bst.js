@@ -137,13 +137,28 @@ class Tree {
     node.right.left = null;
   }
 
-  #isImbalanced(node) {
+  isBalanced(node) {
+    if (!node) throw new Error("provided node is either invalid or is missing");
+
     const balanceFactor = node.balanceFactor;
-    const isImbalanced = balanceFactor < -1 || balanceFactor > 1;
-    return isImbalanced;
+    let isBalanced = false;
+
+    switch (balanceFactor) {
+      case -1:
+      case 0:
+      case 1:
+        isBalanced = true;
+        break;
+
+      default:
+        isBalanced = false;
+        break;
+    }
+
+    return isBalanced;
   }
 
-  #rebalance(node) {
+  rebalance(node) {
     const rootBF = node.balanceFactor;
     const leftBF = node.left ? node.left.balanceFactor : 0;
     const rightBF = node.right ? node.right.balanceFactor : 0;
@@ -194,7 +209,7 @@ class Tree {
       }
 
       // check and handle imbalance (if any) after insertion
-      if (this.#isImbalanced(node)) this.#rebalance(node);
+      if (!this.isBalanced(node)) this.rebalance(node);
       return;
     };
 
@@ -248,4 +263,3 @@ tree.insert(24);
 tree.insert(6000);
 tree.insert(6005);
 tree.prettyPrint();
-console.log(tree.levelOrder());
