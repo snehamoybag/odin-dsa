@@ -217,6 +217,14 @@ class Tree {
     inserter(this.root);
   }
 
+  find(value, node = this.root) {
+    if (!node) throw new Error(`${value} is not found!`);
+
+    if (node.data === value) return node;
+    if (value < node.data) return this.find(value, node.left);
+    if (value > node.data) return this.find(value, node.right);
+  }
+
   levelOrder(cb = null) {
     if (!this.root) return;
     const levelOrderData = [];
