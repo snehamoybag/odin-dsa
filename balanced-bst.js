@@ -164,7 +164,6 @@ class Tree {
     const rightBF = node.right ? node.right.balanceFactor : 0;
 
     // if -2, left side is imbalanced. else if 2, right side is imbalanced
-
     if (rootBF === -2 && leftBF === -1) {
       this.#doRightRotation(node);
       return;
@@ -186,8 +185,8 @@ class Tree {
     }
   }
 
-  insert(item) {
-    const newNode = new Node(item);
+  insert(value) {
+    const newNode = new Node(value);
 
     if (!this.root) {
       this.root = newNode;
@@ -196,14 +195,14 @@ class Tree {
 
     // recursive helper function
     const inserter = (node) => {
-      if (item === node.data) return; // dont keep duplicates
+      if (value === node.data) return; // dont keep duplicates
 
-      if (item < node.data) {
+      if (value < node.data) {
         if (node.left) inserter(node.left);
         else node.left = newNode;
       }
 
-      if (item > node.data) {
+      if (value > node.data) {
         if (node.right) inserter(node.right);
         else node.right = newNode;
       }
@@ -215,6 +214,89 @@ class Tree {
 
     // calling the inserter
     inserter(this.root);
+  }
+
+  #inOrderSuccessor(node) {
+    let inOrderSuccessorNode = node.right;
+    let inOrderSuccesorParent = node;
+
+    while (inOrderSuccessorNode.left) {
+      inOrderSuccesorParent = inOrderSuccessorNode;
+      inOrderSuccessorNode = inOrderSuccessorNode.left;
+    }
+
+    return {
+      node: inOrderSuccessorNode,
+      parent: inOrderSuccesorParent,
+    };
+  }
+
+  #deleteTheNodeWithSingleChild(node, parentNode) {
+    const isDeleteNodeInLeft = parentNode.left.data === node.data;
+
+    if (isDeleteNodeInLeft) {
+      parentNode.left = node.left || node.right;
+    } else {
+      parentNode.right = node.left || node.right;
+    }
+  }
+
+  #deleteTheNodeWithNoChild(node, parentNode) {
+    const isDeleteNodeInLeft = parentNode.left.data === node.data;
+
+    if (isDeleteNodeInLeft) parentNode.left = null;
+    else parentNode.right = null;
+  }
+
+  delete(value) {
+    if (!this.root) return;
+
+    // find the node and its parent
+    let currentNode = this.root;
+    let parentNode = null;
+    let deleteNode = null;
+
+    while (currentNode) {
+      if (currentNode.data === value) {
+        deleteNode = currentNode;
+        break;
+      }
+
+      if (value < currentNode.data) {
+        parentNode = currentNode;
+        currentNode = currentNode.left;
+      }
+
+      if (value > currentNode.data) {
+        parentNode = currentNode;
+        currentNode = currentNode.right;
+      }
+    }
+
+    if (!deleteNode) return; // node not found
+
+    // when node has both child, switch with its in-order successor aka the next biggest node
+    if (deleteNode.left && deleteNode.right) {
+      const inOrderSuccessor = this.#inOrderSuccessor(deleteNode);
+      const inOrderSuccessorNode = inOrderSuccessor.node;
+      const inOrderSuccessorParent = inOrderSuccessor.parent;
+
+      // switch data
+      const deleteData = deleteNode.data;
+      deleteNode.data = inOrderSuccessorNode.data;
+      inOrderSuccessorNode.data = deleteData;
+
+      // switch variables
+      deleteNode = inOrderSuccessorNode;
+      parentNode = inOrderSuccessorParent;
+    }
+
+    // when node has single child
+    if (deleteNode.left || deleteNode.right) {
+      this.#deleteTheNodeWithSingleChild(deleteNode, parentNode);
+    } else {
+      this.#deleteTheNodeWithNoChild(deleteNode, parentNode);
+    }
   }
 
   find(value, node = this.root) {
@@ -330,4 +412,6 @@ tree.insert(778);
 tree.insert(24);
 tree.insert(6000);
 tree.insert(6005);
+tree.prettyPrint();
+tree.delete(23);
 tree.prettyPrint();
