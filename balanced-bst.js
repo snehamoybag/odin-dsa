@@ -316,6 +316,33 @@ class Tree {
     if (value > node.data) return this.find(value, node.right);
   }
 
+  height(node) {
+    const theNode = this.find(node.data);
+    return theNode.height;
+  }
+
+  depth(node) {
+    if (!this.root || !node) {
+      throw new Error("node is invalid or the tree is empty");
+    }
+
+    const value = node.data;
+    let depth = 0;
+    let currentNode = this.root;
+
+    while (currentNode) {
+      if (value === currentNode.data) break;
+      if (value < currentNode.data) currentNode = currentNode.left;
+      if (value > currentNode.data) currentNode = currentNode.right;
+
+      depth += 1;
+    }
+
+    // if current node is null, node is not found
+    if (!currentNode) throw new Error("node not found!");
+    return depth;
+  }
+
   levelOrder(cb = null) {
     if (!this.root) return;
     const levelOrderData = [];
