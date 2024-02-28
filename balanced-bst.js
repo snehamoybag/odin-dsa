@@ -111,18 +111,18 @@ class Tree {
     this.root = this.#buildTree(this.#filterAndSort(array));
   }
 
-  #doRightRotation(node) {
-    node.right = new Node(node.data); // right has to be null since the tree is imbalanced
-    node.data = node.left.data;
-    node.left.data = node.left.left.data;
-    node.left.left = null;
-  }
-
   #doLeftRotation(node) {
     node.left = new Node(node.data); // left has to be null since the tree is imbalanced
     node.data = node.right.data;
     node.right.data = node.right.right.data;
     node.right.right = null;
+  }
+
+  #doRightRotation(node) {
+    node.right = new Node(node.data); // right has to be null since the tree is imbalanced
+    node.data = node.left.data;
+    node.left.data = node.left.left.data;
+    node.left.left = null;
   }
 
   #doLeftRightRotation(node) {
@@ -137,52 +137,59 @@ class Tree {
     node.right.left = null;
   }
 
-  isBalanced(node) {
-    if (!node) throw new Error("provided node is either invalid or is missing");
+  get isBalanced() {
+    if (!this.root) return true; // empty tree is balanced
+    const imBalanceNodes = [];
 
-    const balanceFactor = node.balanceFactor;
-    let isBalanced = false;
+    // recursive function to help us trevers tree
+    const detective = (node) => {
+      if (node.left) detective(node.left);
+      if (node.right) detective(node.right);
 
-    switch (balanceFactor) {
-      case -1:
-      case 0:
-      case 1:
-        isBalanced = true;
-        break;
+      const balFactor = node.balanceFactor;
+      const isBalanced = balFactor === -1 || balFactor === 0 || balFactor === 1;
 
-      default:
-        isBalanced = false;
-        break;
-    }
+      if (!isBalanced) imBalanceNodes.push(node);
+    };
 
-    return isBalanced;
+    // calling the detective to check all nodes and find imbalanced nodes
+    detective(this.root);
+
+    // return the results
+    const isTreeBalanced = imBalanceNodes.length === 0;
+    return isTreeBalanced;
   }
 
-  rebalance(node) {
-    const rootBF = node.balanceFactor;
-    const leftBF = node.left ? node.left.balanceFactor : 0;
-    const rightBF = node.right ? node.right.balanceFactor : 0;
+  rebalance() {
+    if (!this.root) return;
 
-    // if -2, left side is imbalanced. else if 2, right side is imbalanced
-    if (rootBF === -2 && leftBF === -1) {
-      this.#doRightRotation(node);
-      return;
-    }
+    // helper function to help tackle imbalance
+    const fixImbalance = (node) => {
+      const rootBF = node.balanceFactor;
 
-    if (rootBF === 2 && rightBF === 1) {
-      this.#doLeftRotation(node);
-      return;
-    }
+      // if -2, right subtree is empty. else if 2, left side is empty
+      if (rootBF === -2) {
+        if (node.left.left) this.#doRightRotation(node);
+        else if (node.left.right) this.#doLeftRightRotation(node);
+        return;
+      }
 
-    if (rootBF === -2 && leftBF === 1) {
-      this.#doLeftRightRotation(node);
-      return;
-    }
+      if (rootBF === 2) {
+        if (node.right.right) this.#doLeftRotation(node);
+        else if (node.right.left) this.#doRightLeftRotation(node);
+        return;
+      }
+    };
 
-    if (rootBF === 2 && rightBF === -1) {
-      this.#doRightLeftRotation(node);
-      return;
-    }
+    // reuursive helper function to help us trevers and fix imbalances
+    const inspector = (node) => {
+      if (node.left) inspector(node.left);
+      if (node.right) inspector(node.right);
+      fixImbalance(node);
+    };
+
+    // calling the inspector to fix balance
+    inspector(this.root);
   }
 
   insert(value) {
@@ -206,14 +213,13 @@ class Tree {
         if (node.right) inserter(node.right);
         else node.right = newNode;
       }
-
-      // check and handle imbalance (if any) after insertion
-      if (!this.isBalanced(node)) this.rebalance(node);
-      return;
     };
 
     // calling the inserter
     inserter(this.root);
+
+    // check and handle imbalance (if any) after insertion
+    if (!this.isBalanced) this.rebalance();
   }
 
   #inOrderSuccessor(node) {
@@ -297,6 +303,9 @@ class Tree {
     } else {
       this.#deleteTheNodeWithNoChild(deleteNode, parentNode);
     }
+
+    // find imbalance and then do rebalance
+    if (this.isBalanced) this.rebalance();
   }
 
   find(value, node = this.root) {
@@ -407,11 +416,7 @@ class Tree {
 }
 
 const tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324, 777]);
-tree.insert(779);
-tree.insert(778);
-tree.insert(24);
-tree.insert(6000);
-tree.insert(6005);
-tree.prettyPrint();
-tree.delete(23);
+tree.insert(780);
+tree.insert(6);
+tree.insert(25);
 tree.prettyPrint();
